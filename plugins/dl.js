@@ -28,10 +28,10 @@ module.exports = {
         // yt-dlp Command construction
         let command;
         if (format === 'mp3') {
-            command = `yt-dlp -x --audio-format mp3 --audio-quality 0 --max-filesize 50M -o "${outputPath}" "${url}"`;
+            command = `yt-dlp -x --audio-format mp3 --audio-quality 0 -o "${outputPath}" "${url}"`;
         } else {
-            // Forces mp4 format and ensures it's under 50MB (WhatsApp limit)
-            command = `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --max-filesize 50M -o "${outputPath}" "${url}"`;
+            // Forces mp4 format
+            command = `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" -o "${outputPath}" "${url}"`;
         }
 
         exec(command, async (error, stdout, stderr) => {
@@ -41,21 +41,11 @@ module.exports = {
                 if (errorMsg.includes('not supported') || errorMsg.includes('unavailable')) {
                     return message.reply("❌ This site is not supported or the video is private.");
                 }
-                return message.reply("❌ Download failed. The URL might be broken, site unsupported, or the file is too large (>50MB).");
+                return message.reply("❌ Download failed. The URL might be broken or the site is unsupported.");
             }
 
             try {
                 if (fs.existsSync(outputPath)) {
-                    // Check file size (WhatsApp limit is usually around 16MB for some, 64MB for others)
-                    const stats = fs.statSync(outputPath);
-                    const fileSizeInBytes = stats.size;
-                    const fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
-
-                    if (fileSizeInMegabytes > 64) {
-                        fs.unlinkSync(outputPath);
-                        return message.reply("❌ File is too large to send via WhatsApp (Limit 64MB).");
-                    }
-
                     const media = MessageMedia.fromFilePath(outputPath);
                     
                     await client.sendMessage(message.from, media, {
