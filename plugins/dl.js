@@ -9,7 +9,7 @@ module.exports = {
         const url = args[0];
         const format = args[1] ? args[1].toLowerCase() : 'mp3'; // Default to mp3 if not specified
 
-        if (!url) {
+        if (!url || !url.startsWith('http')) {
             return message.reply("❌ Usage: .dl [url] [mp3/mp4]\nExample: .dl https://youtube.com/watch?v=xxx mp4");
         }
 

@@ -45,7 +45,9 @@ const client = new Client({
             '--disable-gpu',
             '--disable-extensions',
             '--disable-background-networking',
-            '--disable-software-rasterizer'
+            '--disable-software-rasterizer',
+            '--disable-web-security',
+            '--disable-features=IsolateOrigins,site-per-process'
         ],
     }
 });
