@@ -1,5 +1,6 @@
 module.exports = {
     name: 'bc',
+    description: 'Broadcast a message to all chats (Owner only).',
     async execute(client, message, args) {
         const owner = process.env.OWNER_NUMBER + '@c.us';
         if (message.from !== owner && !message.fromMe) return message.reply("Owner only.");

@@ -1,5 +1,6 @@
 module.exports = {
     name: 'menu',
+    description: 'Show this bot menu.',
     async execute(client, message, args, plugins) {
         const prefix = '.';
         
@@ -11,12 +12,12 @@ module.exports = {
         menuText += `🛠️ *Prefix:* [ ${prefix} ]\n`;
         menuText += `━━━━━━━━━━━━━━━━━━━━\n\n`;
 
-        // Group commands by simple logic (or just list them beautifully)
         menuText += `╭──〔 *COMMANDS* 〕──\n`;
         const commandNames = Object.keys(plugins).sort();
         commandNames.forEach((cmd, index) => {
             const emoji = ['🔥', '⚡', '🌟', '💎', '🚀'][index % 5];
-            menuText += `│ ${emoji} ${prefix}${cmd}\n`;
+            const desc = plugins[cmd].description || 'No description';
+            menuText += `│ ${emoji} *${prefix}${cmd}* - ${desc}\n`;
         });
         menuText += `╰━━━━━━━━━━━━━━━\n\n`;
 

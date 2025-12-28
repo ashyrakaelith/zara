@@ -1,5 +1,6 @@
 module.exports = {
     name: 'all',
+    description: 'Tag all members in the group.',
     async execute(client, message, args) {
         const chat = await message.getChat();
         if (!chat.isGroup) return message.reply("Groups only.");

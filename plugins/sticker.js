@@ -1,5 +1,6 @@
 module.exports = {
     name: 's',
+    description: 'Convert an image or video to a sticker.',
     async execute(client, message, args) {
         const mediaMsg = message.hasMedia ? message : (message.hasQuotedMsg ? await message.getQuotedMessage() : null);
         
