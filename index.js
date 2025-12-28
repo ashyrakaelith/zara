@@ -16,11 +16,15 @@ process.on('unhandledRejection', (reason, promise) => {
 
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
-    if (err.message.includes('SingletonLock')) {
-        const lockPath = path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonLock');
+    const lockPath = path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonLock');
+    if (err.message.includes('SingletonLock') || true) { // Always check on exception
         if (fs.existsSync(lockPath)) {
-            fs.unlinkSync(lockPath);
-            console.log('Cleared stale lock on exception. Please restart.');
+            try {
+                fs.unlinkSync(lockPath);
+                console.log('Cleared stale lock on exception.');
+            } catch (e) {
+                console.error('Failed to clear lock:', e);
+            }
         }
     }
 });
@@ -150,15 +154,20 @@ client.on('message_create', async (message) => {
 });
 
 // Error handling for the client initialization
-client.initialize().catch(err => {
-    console.error('Failed to initialize WhatsApp client:', err);
-    // Attempt to clear lock and retry once
-    if (err.message.includes('SingletonLock')) {
+const initializeClient = () => {
+    client.initialize().catch(err => {
+        console.error('Failed to initialize WhatsApp client:', err);
         const lockPath = path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonLock');
         if (fs.existsSync(lockPath)) {
-            fs.unlinkSync(lockPath);
-            console.log('Cleared stale lock, retrying...');
-            client.initialize();
+            try {
+                fs.unlinkSync(lockPath);
+                console.log('Cleared stale lock, retrying in 5 seconds...');
+                setTimeout(initializeClient, 5000);
+            } catch (e) {
+                console.error('Failed to clear lock:', e);
+            }
         }
-    }
-});
+    });
+};
+
+initializeClient();
