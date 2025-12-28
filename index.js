@@ -131,11 +131,22 @@ client.on('qr', qr => {
     console.log('New QR code generated. View it in the web preview.');
 });
 
-client.on('ready', () => {
+client.on('ready', async () => {
     qrCodeData = '';
     botInfo = client.info;
     console.log(`Bot is online! Loaded ${Object.keys(plugins).length} commands.`);
     console.log(`Connected as: ${botInfo.pushname} (${botInfo.wid.user})`);
+
+    // Check if we just restarted and need to send an "Alive" message
+    if (fs.existsSync('.restart_chat')) {
+        const chatId = fs.readFileSync('.restart_chat', 'utf8').trim();
+        try {
+            await client.sendMessage(chatId, '✅ *Bot is back online!*');
+            fs.unlinkSync('.restart_chat');
+        } catch (err) {
+            console.error('Failed to send restart message:', err);
+        }
+    }
 });
 
 client.on('message_create', async (message) => {

@@ -27,6 +27,9 @@ module.exports = {
         try {
             await message.reply("🔄 Restarting bot... PM2 will reboot the process shortly.");
 
+            // Save the current chat ID so we can send an "Alive" message after restart
+            fs.writeFileSync('.restart_chat', message.from);
+
             // Log for debugging
             console.log(`[System] Restart initiated by ${cleanSender}. Exiting process...`);
 
