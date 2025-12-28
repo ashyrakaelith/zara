@@ -138,11 +138,12 @@ client.on('ready', async () => {
     console.log(`Connected as: ${botInfo.pushname} (${botInfo.wid.user})`);
 
     // Check if we just restarted and need to send an "Alive" message
-    if (fs.existsSync('.restart_chat')) {
-        const chatId = fs.readFileSync('.restart_chat', 'utf8').trim();
+    const restartFile = path.join(__dirname, '.restart_chat');
+    if (fs.existsSync(restartFile)) {
+        const chatId = fs.readFileSync(restartFile, 'utf8').trim();
         try {
             await client.sendMessage(chatId, '✅ *Bot is back online!*');
-            fs.unlinkSync('.restart_chat');
+            fs.unlinkSync(restartFile);
         } catch (err) {
             console.error('Failed to send restart message:', err);
         }
