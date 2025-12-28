@@ -1,11 +1,9 @@
 module.exports = {
     name: 'menu',
     async execute(client, message, args, plugins) {
-        const contact = await message.getContact();
         const prefix = '.';
         
         let menuText = `✨ *BOT DASHBOARD* ✨\n`;
-        menuText += `👤 User: ${contact.pushname || 'User'}\n`;
         menuText += `━━━━━━━━━━━━━━━━━━\n\n`;
 
         // Dynamically list all loaded plugins
