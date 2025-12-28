@@ -45,11 +45,14 @@ module.exports = {
 
             try {
                 if (fs.existsSync(outputPath)) {
+                    // Split file if it's too large, or just try to send
                     const media = MessageMedia.fromFilePath(outputPath);
+                    
+                    // Optimization: check file size if possible, or just use the flag
                     await client.sendMessage(message.from, media, {
                         sendAudioAsVoice: false,
                         caption: `✅ Downloaded successfully!`,
-                        unsafeIgnoreMessageHandlerErrors: true
+                        unsafeIgnoreMessageHandlerErrors: true // This is crucial for large files
                     });
                     
                     // Cleanup
@@ -58,8 +61,8 @@ module.exports = {
                     message.reply("❌ File not found after download.");
                 }
             } catch (err) {
-                console.error(err);
-                message.reply("❌ Error sending the file.");
+                console.error('Error sending media:', err);
+                message.reply("❌ Error sending the file. It might be too large for WhatsApp.");
             }
         });
     }
