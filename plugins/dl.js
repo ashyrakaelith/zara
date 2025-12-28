@@ -36,8 +36,12 @@ module.exports = {
 
         exec(command, async (error, stdout, stderr) => {
             if (error) {
-                console.error(`Error: ${error.message}`);
-                return message.reply("❌ Download failed. The file might be too large (>50MB) or the URL is unsupported.");
+                console.error(`Download Error: ${error.message}`);
+                const errorMsg = error.message.toLowerCase();
+                if (errorMsg.includes('not supported') || errorMsg.includes('unavailable')) {
+                    return message.reply("❌ This site is not supported or the video is private.");
+                }
+                return message.reply("❌ Download failed. The URL might be broken, site unsupported, or the file is too large (>50MB).");
             }
 
             try {

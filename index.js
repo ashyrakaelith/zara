@@ -9,6 +9,22 @@ const app = express();
 const port = process.env.PORT || 5000;
 let qrCodeData = '';
 
+// Global error handlers
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    if (err.message.includes('SingletonLock')) {
+        const lockPath = path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonLock');
+        if (fs.existsSync(lockPath)) {
+            fs.unlinkSync(lockPath);
+            console.log('Cleared stale lock on exception. Please restart.');
+        }
+    }
+});
+
 const client = new Client({
     authStrategy: new LocalAuth({ clientId: 'bot' }),
     puppeteer: {
@@ -133,4 +149,16 @@ client.on('message_create', async (message) => {
     }
 });
 
-client.initialize();
+// Error handling for the client initialization
+client.initialize().catch(err => {
+    console.error('Failed to initialize WhatsApp client:', err);
+    // Attempt to clear lock and retry once
+    if (err.message.includes('SingletonLock')) {
+        const lockPath = path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonLock');
+        if (fs.existsSync(lockPath)) {
+            fs.unlinkSync(lockPath);
+            console.log('Cleared stale lock, retrying...');
+            client.initialize();
+        }
+    }
+});
