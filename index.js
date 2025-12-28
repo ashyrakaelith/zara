@@ -47,7 +47,8 @@ const client = new Client({
             '--disable-background-networking',
             '--disable-software-rasterizer',
             '--disable-web-security',
-            '--disable-features=IsolateOrigins,site-per-process'
+            '--disable-features=IsolateOrigins,site-per-process',
+            '--disable-site-isolation-trials'
         ],
     }
 });

@@ -51,7 +51,8 @@ module.exports = {
                     await client.sendMessage(message.from, media, {
                         sendAudioAsVoice: false, // Sends as a proper audio file
                         caption: `✅ *Source:* ${url}`,
-                        unsafeIgnoreMessageHandlerErrors: true
+                        unsafeIgnoreMessageHandlerErrors: true,
+                        sendMediaAsDocument: true
                     });
 
                     // Cleanup: Delete file after sending
