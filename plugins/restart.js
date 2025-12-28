@@ -2,11 +2,13 @@ module.exports = {
     name: 'restart',
     description: 'Restarts the bot (Owner only).',
     async execute(client, message, args) {
-        const ownerNumber = process.env.OWNER_NUMBER;
+        const ownerNumbers = (process.env.OWNER_NUMBER || '').split(',').map(num => num.trim());
         const sender = message.author || message.from;
         
-        // Basic check if sender is owner
-        if (ownerNumber && !sender.includes(ownerNumber)) {
+        // Check if sender is one of the owners
+        const isOwner = ownerNumbers.some(owner => sender.includes(owner));
+        
+        if (!isOwner) {
             return message.reply("❌ This command is for the owner only.");
         }
 
