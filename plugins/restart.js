@@ -5,10 +5,16 @@ module.exports = {
         const ownerNumbers = (process.env.OWNER_NUMBER || '').split(',').map(num => num.trim());
         const sender = message.author || message.from;
         
-        // Check if sender is one of the owners
-        const isOwner = ownerNumbers.some(owner => sender.includes(owner));
+        // Detailed check for owner
+        const isOwner = ownerNumbers.some(owner => {
+            if (!owner) return false;
+            // Remove any @s.whatsapp.net if user provided it in secret
+            const cleanOwner = owner.replace('@s.whatsapp.net', '').replace('@c.us', '');
+            return sender.includes(cleanOwner);
+        });
         
         if (!isOwner) {
+            console.log(`Unauthorized attempt for .restart from: ${sender}. Configured owners: ${ownerNumbers}`);
             return message.reply("❌ This command is for the owner only.");
         }
 
