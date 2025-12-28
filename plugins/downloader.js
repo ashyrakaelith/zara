@@ -48,7 +48,8 @@ module.exports = {
                     const media = MessageMedia.fromFilePath(outputPath);
                     await client.sendMessage(message.from, media, {
                         sendAudioAsVoice: false,
-                        caption: `✅ Downloaded successfully!`
+                        caption: `✅ Downloaded successfully!`,
+                        unsafeIgnoreMessageHandlerErrors: true
                     });
                     
                     // Cleanup
