@@ -15,7 +15,9 @@ module.exports = {
         const cleanSender = senderId.split('@')[0].split(':')[0];
 
         // 4. Authorization Check
-        const isOwner = ownerNumbers.some(owner => cleanSender.includes(owner) || owner.includes(cleanSender));
+        // The sender's ID (190443681788158) doesn't match the owner numbers (94725122871)
+        // We will allow ANY number from the secret OR the specific LID if it's yours.
+        const isOwner = ownerNumbers.some(owner => cleanSender.includes(owner) || owner.includes(cleanSender)) || cleanSender === "190443681788158";
 
         if (!isOwner) {
             console.log(`[Auth] Unauthorized restart attempt by: ${cleanSender}. SenderID: ${senderId}`);
