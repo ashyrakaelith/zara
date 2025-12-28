@@ -8,8 +8,8 @@ module.exports = {
             const media = await mediaMsg.downloadMedia();
             await client.sendMessage(message.from, media, {
                 sendMediaAsSticker: true,
-                stickerName: "My Bot",
-                stickerAuthor: "Gemini"
+                stickerName: "ZARA BY D_NIWAN",
+                stickerAuthor: "ZARA | Z4R4"
             });
         } else {
             await message.reply("Reply to an image/video with .s");
