@@ -2,20 +2,27 @@ module.exports = {
     name: 'menu',
     async execute(client, message, args, plugins) {
         const prefix = '.';
+        const contact = await message.getContact();
         
-        let menuText = `✨ *BOT DASHBOARD* ✨\n`;
-        menuText += `━━━━━━━━━━━━━━━━━━\n\n`;
+        let menuText = `╔═══━━━─── • ───━━━═══╗\n`;
+        menuText += `║  ✨ *ZARA BOT MENU* ✨  ║\n`;
+        menuText += `╚═══━━━─── • ───━━━═══╝\n\n`;
+        
+        menuText += `👤 *User:* ${contact.pushname || 'Guest'}\n`;
+        menuText += `📅 *Date:* ${new Date().toLocaleDateString()}\n`;
+        menuText += `🛠️ *Prefix:* [ ${prefix} ]\n`;
+        menuText += `━━━━━━━━━━━━━━━━━━━━\n\n`;
 
-        // Dynamically list all loaded plugins
-        menuText += `*〔 COMMANDS 〕*\n`;
+        // Group commands by simple logic (or just list them beautifully)
+        menuText += `╭──〔 *COMMANDS* 〕──\n`;
         const commandNames = Object.keys(plugins).sort();
-        commandNames.forEach(cmd => {
-            menuText += `> ${prefix}${cmd}\n`;
+        commandNames.forEach((cmd, index) => {
+            const emoji = ['🔥', '⚡', '🌟', '💎', '🚀'][index % 5];
+            menuText += `│ ${emoji} ${prefix}${cmd}\n`;
         });
-        menuText += `\n`;
+        menuText += `╰━━━━━━━━━━━━━━━\n\n`;
 
-        menuText += `━━━━━━━━━━━━━━━━━━\n`;
-        menuText += `_Type ${prefix}s for stickers_`;
+        menuText += `💡 *Tip:* Reply with ${prefix}s to a photo to make a sticker!`;
         
         await message.reply(menuText);
     }
