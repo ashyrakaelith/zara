@@ -8,15 +8,19 @@ const client = new Client({
     authStrategy: new LocalAuth({ clientId: 'bot' }),
     puppeteer: {
         handleSIGINT: false,
-       args: [
+        headless: true,
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/nix/store/qa9cnw4v5xkxyip6mb9kxqfq1z4x2dx1-chromium-138.0.7204.100/bin/chromium',
+        args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--single-process', // <- helps in some Linux environments
-            '--disable-gpu'
+            '--disable-gpu',
+            '--disable-extensions',
+            '--disable-background-networking',
+            '--disable-software-rasterizer'
         ],
     }
 });
