@@ -6,7 +6,8 @@ module.exports = {
         
         if (mediaMsg && mediaMsg.hasMedia) {
             const media = await mediaMsg.downloadMedia();
-            await client.sendMessage(message.from, media, {
+            const chatId = message.from;
+            await client.sendMessage(chatId, media, {
                 sendMediaAsSticker: true,
                 stickerName: "ZARA BY D_NIWAN",
                 stickerAuthor: "ZARA | Z4R4"
