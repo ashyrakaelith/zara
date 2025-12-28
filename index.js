@@ -30,20 +30,43 @@ const client = new Client({
     }
 });
 
+let botInfo = null;
+
 app.get('/', (req, res) => {
-    if (qrCodeData) {
+    if (botInfo) {
+        res.send(`
+            <html>
+                <body style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; background: #f0f2f5;">
+                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                        <h1 style="color: #128c7e;">WhatsApp Bot Online</h1>
+                        <div style="margin: 1rem 0; padding: 1rem; background: #e7f3f0; border-radius: 4px; display: inline-block;">
+                            <p style="margin: 0; font-weight: bold; color: #0b5e54;">Connected as: ${botInfo.pushname}</p>
+                            <p style="margin: 5px 0 0 0; color: #667781; font-size: 0.9rem;">Number: ${botInfo.wid.user}</p>
+                        </div>
+                        <p style="margin-top: 1rem; color: #667781; font-size: 0.9rem;">Bot is active and listening for commands.</p>
+                        <script>setTimeout(() => window.location.reload(), 30000);</script>
+                    </div>
+                </body>
+            </html>
+        `);
+    } else if (qrCodeData) {
         res.send(`
             <html>
                 <body style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; background: #f0f2f5;">
                     <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
                         <h1 style="color: #128c7e;">WhatsApp Bot Login</h1>
                         <p>Scan the QR code below with your WhatsApp app</p>
-                        <div id="qrcode"></div>
+                        <div id="qrcode" style="display: flex; justify-content: center; margin: 20px 0;"></div>
                         <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
                         <script>
-                            new QRCode(document.getElementById("qrcode"), "${qrCodeData}");
+                            new QRCode(document.getElementById("qrcode"), {
+                                text: "${qrCodeData}",
+                                width: 256,
+                                height: 256
+                            });
                         </script>
                         <p style="margin-top: 1rem; color: #667781; font-size: 0.9rem;">The bot will start once scanned.</p>
+                        <script>setTimeout(() => window.location.reload(), 10000);</script>
                     </div>
                 </body>
             </html>
@@ -54,7 +77,7 @@ app.get('/', (req, res) => {
                 <body style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; background: #f0f2f5;">
                     <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
                         <h1 style="color: #128c7e;">WhatsApp Bot</h1>
-                        <p>Waiting for QR code generation or bot is already online...</p>
+                        <p>Initializing or connecting...</p>
                         <script>setTimeout(() => window.location.reload(), 5000);</script>
                     </div>
                 </body>
@@ -87,7 +110,9 @@ client.on('qr', qr => {
 
 client.on('ready', () => {
     qrCodeData = '';
+    botInfo = client.info;
     console.log(`Bot is online! Loaded ${Object.keys(plugins).length} commands.`);
+    console.log(`Connected as: ${botInfo.pushname} (${botInfo.wid.user})`);
 });
 
 client.on('message_create', async (message) => {
