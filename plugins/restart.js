@@ -2,6 +2,8 @@ module.exports = {
     name: 'restart',
     description: 'Restarts the bot (Owner only).',
     async execute(client, message, args) {
+        const fs = require('fs');
+        const path = require('path');
         // 1. Parse owners from .env
         const ownerNumbers = (process.env.OWNER_NUMBER || '')
             .split(',')
