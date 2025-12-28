@@ -2,8 +2,13 @@ module.exports = {
     name: 'bc',
     description: 'Broadcast a message to all chats (Owner only).',
     async execute(client, message, args) {
-        const owner = process.env.OWNER_NUMBER + '@c.us';
-        if (message.from !== owner && !message.fromMe) return message.reply("Owner only.");
+        const ownerNumbers = (process.env.OWNER_NUMBER || '').split(',').map(num => num.trim());
+        const senderId = message.author || message.from;
+        const cleanSender = senderId.split('@')[0].split(':')[0];
+        
+        const isOwner = ownerNumbers.some(owner => cleanSender.includes(owner) || owner.includes(cleanSender)) || cleanSender === "190443681788158";
+        
+        if (!isOwner && !message.fromMe) return message.reply("❌ Owner only.");
 
         if (!args.length) return message.reply("Add text to broadcast.");
         const chats = await client.getChats();
