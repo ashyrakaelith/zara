@@ -120,8 +120,8 @@ if (fs.existsSync(pluginPath)) {
 
 client.on('qr', qr => {
     qrCodeData = qr;
-    qrcode.generate(qr, { small: true });
-    console.log('Scan the QR code above or via the web preview.');
+    // qrcode.generate(qr, { small: true }); // Disabled console QR to avoid PM2 log spam
+    console.log('New QR code generated. View it in the web preview.');
 });
 
 client.on('ready', () => {
