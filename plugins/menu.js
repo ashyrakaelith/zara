@@ -2,13 +2,11 @@ module.exports = {
     name: 'menu',
     async execute(client, message, args, plugins) {
         const prefix = '.';
-        const contact = await message.getContact();
         
         let menuText = `╔═══━━━─── • ───━━━═══╗\n`;
         menuText += `║  ✨ *ZARA BOT MENU* ✨  ║\n`;
         menuText += `╚═══━━━─── • ───━━━═══╝\n\n`;
         
-        menuText += `👤 *User:* ${contact.pushname || 'Guest'}\n`;
         menuText += `📅 *Date:* ${new Date().toLocaleDateString()}\n`;
         menuText += `🛠️ *Prefix:* [ ${prefix} ]\n`;
         menuText += `━━━━━━━━━━━━━━━━━━━━\n\n`;
