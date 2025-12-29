@@ -9,7 +9,8 @@ module.exports = {
                 const media = await mediaMsg.downloadMedia();
                 if (!media) return message.reply("❌ Failed to download media.");
 
-                await client.sendMessage(message.from, media, {
+                const target = message.fromMe ? message.to : message.from;
+                await client.sendMessage(target, media, {
                     sendMediaAsSticker: true,
                     stickerName: "ZARA BY D_NIWAN",
                     stickerAuthor: "ZARA | Z4R4"
