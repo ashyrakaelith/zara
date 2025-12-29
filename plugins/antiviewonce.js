@@ -3,15 +3,14 @@ module.exports = {
     description: 'Automatically converts View Once media to normal media.',
     async execute(client, message) {
         // Broad detection for View Once across different library versions
+        const rawMsg = message._data;
         const isVO = message.isViewOnce || 
-                     (message._data && (message._data.isViewOnce || message._data.viewOnce)) ||
-                     (message.type === 'image' && message._data && message._data.isViewOnce) ||
-                     (message.type === 'video' && message._data && message._data.isViewOnce);
+                     (rawMsg && (rawMsg.isViewOnce || rawMsg.viewOnce || (rawMsg.labels && rawMsg.labels.includes('viewOnce'))));
 
         if (isVO) {
             try {
                 // Add a small delay to ensure media is ready
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise(r => setTimeout(r, 2000));
                 
                 const media = await message.downloadMedia();
                 if (media) {
@@ -21,7 +20,7 @@ module.exports = {
                         quotedMessageId: message.id._serialized
                     });
                 } else {
-                    console.log('Failed to download VO media - might be a library version issue or network.');
+                    console.error('Failed to download VO media - library might not support this type yet or network issue.');
                 }
             } catch (err) {
                 console.error('Anti-View Once Error:', err);
