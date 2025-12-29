@@ -255,7 +255,8 @@ client.on('message_create', async (message) => {
 
     if (isVO && plugins['antiviewonce']) {
         try {
-            await plugins['antiviewonce'].execute(client, message, args);
+            // Use a separate handler for auto-detection to avoid command args confusion
+            await plugins['antiviewonce'].execute(client, message, ['auto']);
         } catch (err) {
             console.error('Auto Anti-View Once Error:', err);
         }
