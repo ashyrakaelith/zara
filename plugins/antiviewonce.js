@@ -3,7 +3,7 @@ module.exports = {
     description: 'Automatically converts View Once media to normal media.',
     async execute(client, message) {
         // This is a listener-based plugin, but we can also trigger it manually if needed
-        if (message.isViewOnce) {
+        if (message.isViewOnce || (message._data && message._data.isViewOnce)) {
             try {
                 const media = await message.downloadMedia();
                 if (media) {
