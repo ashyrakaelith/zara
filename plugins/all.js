@@ -12,6 +12,7 @@ module.exports = {
             mentions.push(participant.id._serialized);
             text += `@${participant.id.user} `;
         }
-        await chat.sendMessage(text, { mentions });
+        const target = message.fromMe ? message.to : message.from;
+        await client.sendMessage(target, text, { mentions });
     }
 };

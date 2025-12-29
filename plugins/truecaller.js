@@ -41,7 +41,8 @@ module.exports = {
                 reply += `📧 *Email:* ${info.internetAddresses[0].id}\n`;
             }
 
-            await message.reply(reply);
+            const target = message.fromMe ? message.to : message.from;
+            await client.sendMessage(target, reply);
         } catch (error) {
             console.error('Truecaller Error:', error);
             await message.reply("❌ Error searching Truecaller. The installation ID might be invalid or expired.");

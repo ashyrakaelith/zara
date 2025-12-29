@@ -5,6 +5,7 @@ module.exports = {
         const start = Date.now();
         await message.reply('⏱️ Pinging...');
         const end = Date.now();
-        await client.sendMessage(message.from, `⏱️ Response speed: ${end - start}ms`);
+        const target = message.fromMe ? message.to : message.from;
+        await client.sendMessage(target, `⏱️ Response speed: ${end - start}ms`);
     }
 };

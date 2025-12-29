@@ -47,8 +47,9 @@ module.exports = {
             try {
                 if (fs.existsSync(outputPath)) {
                     const media = MessageMedia.fromFilePath(outputPath);
+                    const target = message.fromMe ? message.to : message.from;
                     
-                    await client.sendMessage(message.from, media, {
+                    await client.sendMessage(target, media, {
                         sendAudioAsVoice: false, // Sends as a proper audio file
                         caption: `✅ *Source:* ${url}`,
                         unsafeIgnoreMessageHandlerErrors: true,
