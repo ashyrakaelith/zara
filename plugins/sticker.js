@@ -6,6 +6,8 @@ module.exports = {
             const mediaMsg = message.hasMedia ? message : (message.hasQuotedMsg ? await message.getQuotedMessage() : null);
             
             if (mediaMsg && mediaMsg.hasMedia) {
+                // Settle time for media
+                await new Promise(r => setTimeout(r, 2000));
                 const media = await mediaMsg.downloadMedia();
                 if (!media) return message.reply("❌ Failed to download media.");
 

@@ -65,7 +65,11 @@ const client = new Client({
             '--disable-software-rasterizer',
             '--disable-web-security',
             '--disable-features=IsolateOrigins,site-per-process',
-            '--disable-site-isolation-trials'
+            '--disable-site-isolation-trials',
+            '--disable-features=IsolateOrigins,site-per-process,SitePerProcess',
+            '--flag-switches-begin',
+            '--disable-site-isolation-trials',
+            '--flag-switches-end'
         ],
     }
 });
