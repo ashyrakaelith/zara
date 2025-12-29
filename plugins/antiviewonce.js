@@ -17,7 +17,10 @@ module.exports = {
             }
 
             const target = message.fromMe ? message.to : message.from;
-            message.reply("⏳ Processing view-once media...");
+            // Removed manual reply to avoid race conditions with downloadMedia
+            
+            // Add a small delay to allow media to fully "settle" on WA servers
+            await new Promise(r => setTimeout(r, 1500));
 
             const media = await targetMsg.downloadMedia();
             if (media) {
