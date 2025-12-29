@@ -115,17 +115,37 @@ app.get('/', (req, res) => {
         const logFile = path.join(__dirname, 'bot.log');
         let logs = 'No logs available.';
         if (fs.existsSync(logFile)) {
-            logs = fs.readFileSync(logFile, 'utf8').split('\n').slice(-50).reverse().join('\n');
+            logs = fs.readFileSync(logFile, 'utf8').split('\n').slice(-50).join('\n');
         }
         res.send(`
             <html>
-                <body style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; background: #f0f2f5; padding: 20px;">
-                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 800px;">
-                        <h1 style="color: #128c7e;">WhatsApp Bot Logs</h1>
-                        <div style="text-align: left; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; overflow-x: auto; max-height: 400px; overflow-y: auto; font-size: 13px;">${logs}</div>
-                        <p style="margin-top: 1rem; color: #667781; font-size: 0.9rem;">Initializing or connecting... <a href="/" style="color: #128c7e; text-decoration: none;">Refresh</a></p>
-                        <script>setTimeout(() => window.location.reload(), 5000);</script>
+                <head>
+                    <title>Zara Bot Console</title>
+                    <style>
+                        body { background: #0c0c0c; color: #00ff00; font-family: 'Consolas', 'Monaco', monospace; margin: 0; padding: 20px; font-size: 14px; line-height: 1.5; }
+                        #console { background: #1a1a1a; border: 1px solid #333; padding: 20px; border-radius: 5px; box-shadow: 0 0 20px rgba(0,0,0,0.5); white-space: pre-wrap; word-wrap: break-word; overflow-y: auto; max-height: 85vh; scrollbar-width: thin; scrollbar-color: #333 #1a1a1a; }
+                        #console::-webkit-scrollbar { width: 8px; }
+                        #console::-webkit-scrollbar-track { background: #1a1a1a; }
+                        #console::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+                        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+                        .status { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+                        .dot { width: 10px; height: 10px; background: #00ff00; border-radius: 50%; animation: blink 1s infinite; }
+                        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+                        .timestamp { color: #888; font-size: 12px; }
+                        .error { color: #ff0000; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div style="font-weight: bold; font-size: 18px;">ZARA BOT > CONSOLE</div>
+                        <div class="status"><div class="dot"></div> LIVE SYSTEM LOGS</div>
                     </div>
+                    <div id="console">${logs.replace(/\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)\]/g, '<span class="timestamp">[$1]</span>').replace(/ERROR:/g, '<span class="error">ERROR:</span>')}</div>
+                    <script>
+                        const consoleDiv = document.getElementById('console');
+                        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                        setTimeout(() => window.location.reload(), 3000);
+                    </script>
                 </body>
             </html>
         `);
