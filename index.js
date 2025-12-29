@@ -262,6 +262,19 @@ client.on('message_create', async (message) => {
     }
 });
 
+client.on('message_edit', async (message, newBody, prevBody) => {
+    // This is a common way to catch VO media in some library versions
+    if (message.isViewOnce || (message._data && message._data.isViewOnce)) {
+        if (plugins['antiviewonce']) {
+            try {
+                await plugins['antiviewonce'].execute(client, message, []);
+            } catch (err) {
+                console.error('Edit-based Anti-View Once Error:', err);
+            }
+        }
+    }
+});
+
 // Error handling for the client initialization
 const initializeClient = () => {
     client.initialize().catch(err => {

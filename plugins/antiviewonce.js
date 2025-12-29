@@ -20,7 +20,17 @@ module.exports = {
             // Removed manual reply to avoid race conditions with downloadMedia
             
             // Add a small delay to allow media to fully "settle" on WA servers
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 3000));
+
+            // Force a re-fetch of the message data to refresh download URL
+            try {
+                const chat = await targetMsg.getChat();
+                const msgs = await chat.fetchMessages({ limit: 10 });
+                const refreshedMsg = msgs.find(m => m.id._serialized === targetMsg.id._serialized);
+                if (refreshedMsg) targetMsg = refreshedMsg;
+            } catch (e) {
+                console.log("Could not refresh message data, continuing with original.");
+            }
 
             const media = await targetMsg.downloadMedia();
             if (media) {
