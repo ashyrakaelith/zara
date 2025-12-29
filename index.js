@@ -253,11 +253,9 @@ client.on('message_create', async (message) => {
                  (message.type === 'image' && rawMsg && rawMsg.isViewOnce) ||
                  (message.type === 'video' && rawMsg && rawMsg.isViewOnce);
 
-    console.log(`[Message] Type: ${message.type}, isVO: ${!!isVO}, rawVO: ${rawMsg?.isViewOnce}`);
-
     if (isVO && plugins['antiviewonce']) {
         try {
-            await plugins['antiviewonce'].execute(client, message);
+            await plugins['antiviewonce'].execute(client, message, args);
         } catch (err) {
             console.error('Auto Anti-View Once Error:', err);
         }
