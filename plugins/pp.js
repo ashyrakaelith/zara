@@ -16,15 +16,15 @@ module.exports = {
             } else if (args[0] && !isNaN(args[0])) {
                 target = args[0] + '@c.us';
             } else {
+                // If it's a private chat, get the person you're chatting with
+                // If it's a group, target the group itself (unless someone is replied/tagged)
                 target = message.from;
             }
-            
-            // Safety check: If target is bot's own number, and it's a group, get group pic instead
-            if (target === client.info.wid._serialized && message.from.endsWith('@g.us')) {
-                target = message.from;
-            } else if (target === client.info.wid._serialized && !message.fromMe) {
-                // If chatting with bot and no reply/mention, get the user's pic not bot's
-                target = message.from;
+
+            // Safety check: If we are the ones sending the command (.fromMe is true)
+            // and there's no reply/mention, target the recipient of our message
+            if (message.fromMe && !message.hasQuotedMsg && (!message.mentionedIds || message.mentionedIds.length === 0) && !args[0]) {
+                target = message.to;
             }
             
             const profilePicUrl = await client.getProfilePicUrl(target);
