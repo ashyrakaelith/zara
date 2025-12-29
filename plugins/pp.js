@@ -19,6 +19,14 @@ module.exports = {
                 target = message.from;
             }
             
+            // Safety check: If target is bot's own number, and it's a group, get group pic instead
+            if (target === client.info.wid._serialized && message.from.endsWith('@g.us')) {
+                target = message.from;
+            } else if (target === client.info.wid._serialized && !message.fromMe) {
+                // If chatting with bot and no reply/mention, get the user's pic not bot's
+                target = message.from;
+            }
+            
             const profilePicUrl = await client.getProfilePicUrl(target);
             const targetChat = message.fromMe ? message.to : message.from;
 
