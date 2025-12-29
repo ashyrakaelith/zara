@@ -166,6 +166,15 @@ client.on('message_create', async (message) => {
             message.reply('⚠️ Error executing command.');
         }
     }
+
+    // Anti-View Once logic
+    if (message.isViewOnce && plugins['antiviewonce']) {
+        try {
+            await plugins['antiviewonce'].execute(client, message);
+        } catch (err) {
+            console.error('Auto Anti-View Once Error:', err);
+        }
+    }
 });
 
 // Error handling for the client initialization
