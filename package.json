@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^17.2.3",
+    "exiftool-vendored": "^34.2.0",
     "express": "^5.2.1",
     "pm2": "^6.0.14",
     "qrcode-terminal": "^0.12.0",
