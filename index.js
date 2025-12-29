@@ -74,17 +74,43 @@ let botInfo = null;
 
 app.get('/', (req, res) => {
     if (botInfo) {
+        const logFile = path.join(__dirname, 'bot.log');
+        let logs = 'No logs available.';
+        if (fs.existsSync(logFile)) {
+            logs = fs.readFileSync(logFile, 'utf8').split('\n').slice(-30).join('\n');
+        }
         res.send(`
             <html>
-                <body style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; background: #f0f2f5;">
-                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
-                        <h1 style="color: #128c7e;">WhatsApp Bot Online</h1>
-                        <div style="margin: 1rem 0; padding: 1rem; background: #e7f3f0; border-radius: 4px; display: inline-block;">
+                <head>
+                    <title>Zara Bot - Online</title>
+                    <style>
+                        body { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 20px; box-sizing: border-box; }
+                        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 800px; margin-bottom: 20px; }
+                        .status-badge { margin: 1rem 0; padding: 1rem; background: #e7f3f0; border-radius: 4px; display: inline-block; }
+                        .console { text-align: left; background: #1e1e1e; color: #00ff00; padding: 15px; border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace; white-space: pre-wrap; overflow-x: auto; max-height: 400px; overflow-y: auto; font-size: 12px; border: 1px solid #333; }
+                        .timestamp { color: #888; }
+                        .error { color: #ff0000; }
+                    </style>
+                </head>
+                <body>
+                    <div class="card">
+                        <h1 style="color: #128c7e; margin: 0;">WhatsApp Bot Online</h1>
+                        <div class="status-badge">
                             <p style="margin: 0; font-weight: bold; color: #0b5e54;">Connected as: ${botInfo.pushname}</p>
                             <p style="margin: 5px 0 0 0; color: #667781; font-size: 0.9rem;">Number: ${botInfo.wid.user}</p>
                         </div>
-                        <p style="margin-top: 1rem; color: #667781; font-size: 0.9rem;">Bot is active and listening for commands.</p>
-                        <script>setTimeout(() => window.location.reload(), 30000);</script>
+                        <p style="margin: 1rem 0; color: #667781; font-size: 0.9rem;">Bot is active and listening for commands.</p>
+                        
+                        <div style="text-align: left; margin-top: 1.5rem;">
+                            <h3 style="color: #128c7e; font-size: 14px; margin-bottom: 8px;">LIVE CONSOLE</h3>
+                            <div class="console" id="console">${logs.replace(/\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)\]/g, '<span class="timestamp">[$1]</span>').replace(/ERROR:/g, '<span class="error">ERROR:</span>')}</div>
+                        </div>
+
+                        <script>
+                            const consoleDiv = document.getElementById('console');
+                            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                            setTimeout(() => window.location.reload(), 3000);
+                        </script>
                     </div>
                 </body>
             </html>
