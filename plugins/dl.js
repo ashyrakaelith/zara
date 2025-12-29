@@ -4,7 +4,8 @@ const path = require('path');
 const { MessageMedia } = require('whatsapp-web.js');
 
 module.exports = {
-    name: 'dl', // Shortened for ease of use
+    name: 'dl',
+    description: 'Download audio/video from various sites.',
     async execute(client, message, args) {
         const url = args[0];
         const format = args[1] ? args[1].toLowerCase() : 'mp3'; // Default to mp3 if not specified

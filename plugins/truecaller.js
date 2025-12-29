@@ -1,7 +1,7 @@
 const truecallerjs = require('truecallerjs');
 
 module.exports = {
-    name: 'tru',
+    name: 'true',
     description: 'Search for phone number details using Truecaller.',
     async execute(client, message, args) {
         const number = args[0];
