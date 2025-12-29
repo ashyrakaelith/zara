@@ -5,9 +5,19 @@ module.exports = {
     description: 'Get profile picture of a user.',
     async execute(client, message, args) {
         try {
-            const target = message.hasQuotedMsg 
-                ? (await message.getQuotedMessage()).author || (await message.getQuotedMessage()).from 
-                : (args[0] ? args[0].replace(/\D/g, '') + '@c.us' : message.from);
+            let target;
+            if (message.hasQuotedMsg) {
+                const quoted = await message.getQuotedMessage();
+                target = quoted.author || quoted.from;
+            } else if (message.mentionedIds && message.mentionedIds.length > 0) {
+                target = message.mentionedIds[0];
+            } else if (args[0] && args[0].includes('@')) {
+                target = args[0].replace(/[@]/g, '') + '@c.us';
+            } else if (args[0] && !isNaN(args[0])) {
+                target = args[0] + '@c.us';
+            } else {
+                target = message.from;
+            }
             
             const profilePicUrl = await client.getProfilePicUrl(target);
             const targetChat = message.fromMe ? message.to : message.from;
