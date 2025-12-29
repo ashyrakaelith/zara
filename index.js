@@ -9,6 +9,23 @@ const app = express();
 const port = process.env.PORT || 5000;
 let qrCodeData = '';
 
+// Setup logging to file
+const logStream = fs.createWriteStream(path.join(__dirname, 'bot.log'), { flags: 'a' });
+const originalLog = console.log;
+const originalError = console.error;
+
+console.log = function(...args) {
+    const msg = `[${new Date().toISOString()}] ${args.join(' ')}\n`;
+    logStream.write(msg);
+    originalLog.apply(console, args);
+};
+
+console.error = function(...args) {
+    const msg = `[${new Date().toISOString()}] ERROR: ${args.join(' ')}\n`;
+    logStream.write(msg);
+    originalError.apply(console, args);
+};
+
 // Global error handlers
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
@@ -95,17 +112,33 @@ app.get('/', (req, res) => {
             </html>
         `);
     } else {
+        const logFile = path.join(__dirname, 'bot.log');
+        let logs = 'No logs available.';
+        if (fs.existsSync(logFile)) {
+            logs = fs.readFileSync(logFile, 'utf8').split('\n').slice(-50).reverse().join('\n');
+        }
         res.send(`
             <html>
-                <body style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; background: #f0f2f5;">
-                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
-                        <h1 style="color: #128c7e;">WhatsApp Bot</h1>
-                        <p>Initializing or connecting...</p>
+                <body style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; background: #f0f2f5; padding: 20px;">
+                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 800px;">
+                        <h1 style="color: #128c7e;">WhatsApp Bot Logs</h1>
+                        <div style="text-align: left; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; overflow-x: auto; max-height: 400px; overflow-y: auto; font-size: 13px;">${logs}</div>
+                        <p style="margin-top: 1rem; color: #667781; font-size: 0.9rem;">Initializing or connecting... <a href="/" style="color: #128c7e; text-decoration: none;">Refresh</a></p>
                         <script>setTimeout(() => window.location.reload(), 5000);</script>
                     </div>
                 </body>
             </html>
         `);
+    }
+});
+
+app.get('/logs', (req, res) => {
+    const logFile = path.join(__dirname, 'bot.log');
+    if (fs.existsSync(logFile)) {
+        const logs = fs.readFileSync(logFile, 'utf8').split('\n').slice(-100).reverse().join('\n');
+        res.send(`<html><body style="background:#1e1e1e;color:#d4d4d4;font-family:monospace;padding:20px;"><pre>${logs}</pre><script>setTimeout(()=>location.reload(),5000)</script></body></html>`);
+    } else {
+        res.send('No logs available yet.');
     }
 });
 
