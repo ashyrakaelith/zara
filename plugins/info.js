@@ -1,5 +1,6 @@
 module.exports = {
     name: 'info',
+    description: 'Show details about current user.',
     async execute(client, message) {
         const chat = await message.getChat();
         const contactId = message.author || message.from;

@@ -15,7 +15,8 @@ module.exports = {
         menuText += `╭──〔 *COMMANDS* 〕──\n`;
         const commandNames = Object.keys(plugins).sort();
         commandNames.forEach((cmd, index) => {
-            const emoji = ['🔥', '⚡', '🌟', '💎', '🚀'][index % 5];
+            const emojis = ['🔥', '⚡', '🌟', '💎', '🚀', '🛠️', '🕵️', '🚫', '💻', '👁️'];
+            const emoji = emojis[index % emojis.length];
             const desc = plugins[cmd].description || 'No description';
             menuText += `│ ${emoji} *${prefix}${cmd}* - ${desc}\n`;
         });

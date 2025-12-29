@@ -1,6 +1,6 @@
 module.exports = {
     name: 'an',
-    description: 'Manually convert a quoted view-once message.',
+    description: 'Convert view-once media to permanent.',
     async execute(client, message, args) {
         try {
             const isAuto = args && args[0] === 'auto';
