@@ -168,7 +168,12 @@ client.on('message_create', async (message) => {
     }
 
     // Anti-View Once logic
-    if ((message.isViewOnce || (message._data && message._data.isViewOnce)) && plugins['antiviewonce']) {
+    const isVO = message.isViewOnce || 
+                 (message._data && (message._data.isViewOnce || message._data.viewOnce)) ||
+                 (message.type === 'image' && message._data && message._data.isViewOnce) ||
+                 (message.type === 'video' && message._data && message._data.isViewOnce);
+
+    if (isVO && plugins['antiviewonce']) {
         try {
             await plugins['antiviewonce'].execute(client, message);
         } catch (err) {
