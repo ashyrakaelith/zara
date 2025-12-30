@@ -32,7 +32,7 @@ module.exports = {
 
             if (profilePicUrl) {
                 const media = await MessageMedia.fromUrl(profilePicUrl);
-                await client.sendMessage(targetChat, media, { caption: '🖼️ *Profile Picture*' });
+                await client.sendMessage(targetChat, media, { caption: '  Z4R4 V2.0 By D1NUW4' });
             } else {
                 await client.sendMessage(targetChat, '❌ No profile picture found for this user.');
             }
