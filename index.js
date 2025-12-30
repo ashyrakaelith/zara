@@ -31,20 +31,26 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-process.on('uncaughtException', (err) => {
-    console.error('Uncaught Exception:', err);
+const clearSingletonLock = () => {
     const lockPath = path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonLock');
-    if (err.message.includes('SingletonLock') || true) { // Always check on exception
-        if (fs.existsSync(lockPath)) {
-            try {
-                fs.unlinkSync(lockPath);
-                console.log('Cleared stale lock on exception.');
-            } catch (e) {
-                console.error('Failed to clear lock:', e);
-            }
+    if (fs.existsSync(lockPath)) {
+        try {
+            fs.unlinkSync(lockPath);
+            console.log('Successfully cleared stale Chromium lock.');
+        } catch (e) {
+            console.error('Failed to clear lock:', e);
         }
     }
+};
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    clearSingletonLock();
 });
+
+process.on('SIGINT', () => clearSingletonLock());
+process.on('SIGTERM', () => clearSingletonLock());
+process.on('exit', () => clearSingletonLock());
 
 const client = new Client({
     authStrategy: new LocalAuth({ clientId: 'bot' }),
@@ -282,9 +288,18 @@ client.on('message_edit', async (message, newBody, prevBody) => {
 
 // Error handling for the client initialization
 const initializeClient = () => {
+    const lockPath = path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonLock');
+    if (fs.existsSync(lockPath)) {
+        try {
+            fs.unlinkSync(lockPath);
+            console.log('Found stale lock during init. Clearing...');
+        } catch (e) {
+            console.error('Failed to clear lock during init:', e);
+        }
+    }
+
     client.initialize().catch(err => {
         console.error('Failed to initialize WhatsApp client:', err);
-        const lockPath = path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonLock');
         if (fs.existsSync(lockPath)) {
             try {
                 fs.unlinkSync(lockPath);
