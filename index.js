@@ -32,15 +32,28 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 const clearSingletonLock = () => {
-    const lockPath = path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonLock');
-    if (fs.existsSync(lockPath)) {
-        try {
-            fs.unlinkSync(lockPath);
-            console.log('Successfully cleared stale Chromium lock.');
-        } catch (e) {
-            console.error('Failed to clear lock:', e);
+    const lockPaths = [
+        path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonLock'),
+        path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonCookie'),
+        path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonSocket')
+    ];
+    
+    // Kill any existing chromium processes first
+    try {
+        const { execSync } = require('child_process');
+        execSync("ps aux | grep chromium | grep -v grep | awk '{print $2}' | xargs kill -9 2>/dev/null || true");
+    } catch (e) {}
+
+    lockPaths.forEach(lockPath => {
+        if (fs.existsSync(lockPath)) {
+            try {
+                fs.unlinkSync(lockPath);
+                console.log(`Successfully cleared stale Chromium file: ${path.basename(lockPath)}`);
+            } catch (e) {
+                console.error(`Failed to clear ${path.basename(lockPath)}:`, e);
+            }
         }
-    }
+    });
 };
 
 process.on('uncaughtException', (err) => {
