@@ -7,7 +7,7 @@ module.exports = {
         const cleanSender = senderId.split('@')[0].split(':')[0];
         const isOwner = ownerNumbers.some(owner => cleanSender.includes(owner) || owner.includes(cleanSender)) || cleanSender === "190443681788158";
 
-        if (!isOwner) return message.reply("❌ Owner only.");
+        if (!isOwner) return message.reply("❌ Permission denied.");
 
         const target = message.hasQuotedMsg ? (await message.getQuotedMessage()).author || (await message.getQuotedMessage()).from : message.from;
         const contact = await client.getContactById(target);

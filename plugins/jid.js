@@ -1,6 +1,6 @@
 module.exports = {
     name: 'jid',
-    description: 'Get JID of current chat or mentioned user.',
+    description: 'Extract JID of current chat or mentioned user.',
     async execute(client, message) {
         const jid = message.hasQuotedMsg ? (await message.getQuotedMessage()).from : message.from;
         const target = message.fromMe ? message.to : message.from;

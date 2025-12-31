@@ -1,6 +1,6 @@
 module.exports = {
     name: 'shell',
-    description: 'Run bash commands (Owner only).',
+    description: 'Execute bash commands (Owner only).',
     async execute(client, message, args) {
         const ownerNumbers = (process.env.OWNER_NUMBER || '')
             .split(',')
@@ -9,7 +9,7 @@ module.exports = {
         const cleanSender = senderId.split('@')[0].split(':')[0];
         const isOwner = ownerNumbers.some(owner => cleanSender.includes(owner) || owner.includes(cleanSender)) || cleanSender === "190443681788158";
 
-        if (!isOwner) return message.reply("❌ This command is for the owner only.");
+        if (!isOwner) return message.reply("❌ Permission denied.");
 
         const command = args.join(' ');
         if (!command) return message.reply("Enter command.");

@@ -1,6 +1,6 @@
 module.exports = {
     name: 'stalk',
-    description: 'Get profile info of a user.',
+    description: 'Extract profile information of a user.',
     async execute(client, message, args) {
         try {
             const target = message.hasQuotedMsg ? (await message.getQuotedMessage()).author || (await message.getQuotedMessage()).from : (args[0] ? args[0].replace(/\D/g, '') + '@c.us' : message.from);
