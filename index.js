@@ -269,6 +269,8 @@ app.get('/logs', (req, res) => {
 
 app.listen(port, '0.0.0.0', () => {
     console.log(`Web preview available at port ${port}`);
+    console.log(`REPL_SLUG: ${process.env.REPL_SLUG}`);
+    console.log(`REPL_OWNER: ${process.env.REPL_OWNER}`);
 });
 
 const plugins = {};
