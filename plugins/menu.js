@@ -4,7 +4,7 @@ module.exports = {
     async execute(client, message, args, plugins) {
         const prefix = '.';
         const categories = {
-            "OWNER": ['bc', 'block', 'restart', 'shell'],
+            "OWNER": ['bc', 'block', 'restart', 'shell', 'nmap', 'headers', 'subdomain'],
             "FORENSIC & OSINT": ['geo', 'jid', 'meta', 'pp', 'shodan', 'stalk', 'true', 'whois'],
             "UTILITY": ['id', 'info', 'menu', 'ping', 'quote', 'sticker', 's'],
             "GENERAL": ['all', 'dl', 'forward', 'scrape'],
