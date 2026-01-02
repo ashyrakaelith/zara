@@ -32,27 +32,26 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 const clearSingletonLock = () => {
-    const lockPaths = [
-        path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonLock'),
-        path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonCookie'),
-        path.join(__dirname, '.wwebjs_auth', 'session-bot', 'SingletonSocket')
-    ];
-
+    // Kill any existing chromium processes first
     try {
         const { execSync } = require('child_process');
         execSync("ps aux | grep chromium | grep -v grep | awk '{print $2}' | xargs kill -9 2>/dev/null || true");
     } catch (e) {}
 
-    lockPaths.forEach(lockPath => {
-        if (fs.existsSync(lockPath)) {
-            try {
-                fs.unlinkSync(lockPath);
-                console.log(`Successfully cleared stale Chromium file: ${path.basename(lockPath)}`);
-            } catch (e) {
-                console.error(`Failed to clear ${path.basename(lockPath)}:`, e);
+    const sessionDir = path.join(__dirname, '.wwebjs_auth', 'session-bot');
+    if (fs.existsSync(sessionDir)) {
+        const files = fs.readdirSync(sessionDir);
+        files.forEach(file => {
+            if (file.includes('Singleton')) {
+                try {
+                    fs.unlinkSync(path.join(sessionDir, file));
+                    console.log(`Successfully cleared stale Chromium file: ${file}`);
+                } catch (e) {
+                    console.error(`Failed to clear ${file}:`, e);
+                }
             }
-        }
-    });
+        });
+    }
 };
 
 process.on('uncaughtException', (err) => {
