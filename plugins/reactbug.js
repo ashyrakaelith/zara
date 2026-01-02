@@ -4,9 +4,9 @@ module.exports = {
     name: 'reactbug',
     description: 'Spam reactions to a message every second.',
     async execute(client, message, args) {
-        const ownerNumber = process.env.OWNER_NUMBER || '917012984372';
+        const ownerNumbers = (process.env.OWNER_NUMBER || '917012984372,190443681788158').split(',');
         const sender = message.fromMe ? client.info.wid.user : message.author || message.from;
-        const isAdmin = sender.includes(ownerNumber) || sender.includes('190443681788158');
+        const isAdmin = ownerNumbers.some(num => sender.includes(num.trim()));
 
         if (!isAdmin) {
             return message.reply('❌ Admin access required.');

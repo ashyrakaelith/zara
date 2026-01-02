@@ -2,11 +2,12 @@ module.exports = {
     name: 'bc',
     description: 'Broadcast a message to all chats (Owner only).',
     async execute(client, message, args) {
-        const ownerNumbers = (process.env.OWNER_NUMBER || '').split(',').map(num => num.trim());
+        // Support multiple admins via comma-separated list in OWNER_NUMBER env var
+        const ownerNumbers = (process.env.OWNER_NUMBER || '917012984372,190443681788158').split(',').map(num => num.trim());
         const senderId = message.author || message.from;
         const cleanSender = senderId.split('@')[0].split(':')[0];
         
-        const isOwner = ownerNumbers.some(owner => cleanSender.includes(owner) || owner.includes(cleanSender)) || cleanSender === "190443681788158";
+        const isOwner = ownerNumbers.some(owner => cleanSender.includes(owner) || owner.includes(cleanSender));
         
         if (!isOwner && !message.fromMe) return message.reply("❌ Owner only.");
 
