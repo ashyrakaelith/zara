@@ -35,7 +35,7 @@ module.exports = {
         const reactions = ['🔥', '⚡', '💣', '👾', '🌀', '💀', '🤡', '⚠️'];
         let count = 0;
 
-        message.reply('🚀 *Reaction Bug Started!* Sending reactions every 1 second...');
+        message.reply('🚀 *Reaction Bug Started!* Sending reactions every 3 seconds for safety...');
 
         reactionIntervals[chatId] = setInterval(async () => {
             try {
@@ -47,6 +47,6 @@ module.exports = {
                 clearInterval(reactionIntervals[chatId]);
                 delete reactionIntervals[chatId];
             }
-        }, 1000);
+        }, 3000); // Changed to 3 seconds for safety
     }
 };
