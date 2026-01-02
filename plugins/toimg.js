@@ -1,39 +1,43 @@
-const { MessageMedia } = require('whatsapp-web.js');
+const sharp = require('sharp');
 
 module.exports = {
     name: 'toimg',
-    description: 'Convert a sticker to an image.',
+    description: 'Convert a sticker to an image and remove white borders.',
     async execute(client, message, args) {
         try {
             let targetMessage = message;
 
-            // Check if it's a reply to a sticker
             if (message.hasQuotedMsg) {
                 targetMessage = await message.getQuotedMessage();
             }
 
-            // Verify the message contains a sticker
             if (targetMessage.type !== 'sticker') {
-                return message.reply('❌ Please reply to a sticker or send a sticker with this command.');
+                return message.reply('❌ Please reply to a sticker.');
             }
 
-            // Download the media from the sticker
             const media = await targetMessage.downloadMedia();
-            
-            if (!media) {
-                return message.reply('❌ Failed to download sticker media.');
-            }
+            if (!media) return message.reply('❌ Failed to download sticker.');
 
-            // Send back as an image
+            // Use sharp to trim transparent/white borders
+            const buffer = Buffer.from(media.data, 'base64');
+            const trimmedBuffer = await sharp(buffer)
+                .trim() // Automatically removes borders based on transparency/color
+                .toFormat('png')
+                .toBuffer();
+
+            media.data = trimmedBuffer.toString('base64');
+            media.mimetype = 'image/png';
+            media.filename = 'sticker.png';
+
             const target = message.fromMe ? message.to : message.from;
             await client.sendMessage(target, media, {
-                caption: '✅ Converted sticker to image.',
+                caption: '✅ Converted sticker (borders removed).',
                 sendMediaAsDocument: false
             });
 
         } catch (error) {
-            console.error('ToImg Command Error:', error);
-            message.reply('❌ An error occurred while converting the sticker.');
+            console.error('ToImg Error:', error);
+            message.reply('❌ Error: Could not process image.');
         }
     }
 };
